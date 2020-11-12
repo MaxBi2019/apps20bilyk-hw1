@@ -5,17 +5,15 @@ import java.util.InputMismatchException;
 
 public class TemperatureSeriesAnalysis {
 
-    private final double epsilon = 0.000000001;
-    private final double limit   = -273;
-    private final double None = Double.NaN;
+    static private final double epsilon = 0.000000001;
+    static private final double limit   = -273;
+    static private final double none = Double.NaN;
 
     private double[] temArr;
     private int size;
     private int cap;
     private double dev;
     private double avr;
-    private double min;
-    private double max;
     private double zer;
 
     public TemperatureSeriesAnalysis()
@@ -29,7 +27,7 @@ public class TemperatureSeriesAnalysis {
     public TemperatureSeriesAnalysis(double[] temperatureSeries)
     {
         Arrays.sort(temperatureSeries);
-        temArr = temperatureSeries;
+        temArr = temperatureSeries.clone();
         size = temperatureSeries.length;
         cap = size;
         cleanData();
@@ -42,23 +40,23 @@ public class TemperatureSeriesAnalysis {
 
     private void cleanData()
     {
-        dev = None;
-        avr = None;
-        min = None;
-        max = None;
-        zer = None;
+        dev = none;
+        avr = none;
+        zer = none;
     }
 
     private void check()
     {
         if (isEmpty())
+        {
             throw new IllegalArgumentException();
+        }
     }
 
-    private boolean dEquals(double d1,
-                            double d2)
+    private boolean dEquals(double dbl1,
+                            double dbl2)
     {
-        return Math.abs(d1-d2) < epsilon;
+        return Math.abs(dbl1-dbl2) < epsilon;
     }
 
     private boolean isEmpty()
@@ -71,7 +69,9 @@ public class TemperatureSeriesAnalysis {
     {
         double[] aggregated = new double[size];
         for (int ind = size; ind > 0; --ind)
+        {
             aggregated[ind - 1] = Math.pow(temArr[ind - 1] - mod, power);
+        }
         return aggregated;
     }
 
@@ -81,11 +81,17 @@ public class TemperatureSeriesAnalysis {
         double sum = 0;
         double[] arr;
         if (power == 1 && mod == 0)
+        {
             arr = temArr;
+        }
         else
+        {
             arr = aggregate(power, mod);
+        }
         for (int ind = arr.length; ind > 0; --ind)
-            sum += arr[ind-1];
+        {
+            sum += arr[ind - 1];
+        }
         return sum;
     }
 
@@ -95,9 +101,10 @@ public class TemperatureSeriesAnalysis {
         int[] boundaries = new int[2];
         int low = 0, high = last;
         int mid = (low + high)/2;
-        for (;low < high; mid = (low+high)/2)
+        for (; low < high; mid = (low+high)/2)
         {
-            if (dEquals(temArr[mid], target) || temArr[mid]<target && target<temArr[mid+1])
+            if (dEquals(temArr[mid], target)
+                || (temArr[mid] < target && target < temArr[mid+1]))
             {
                 break;
             }
@@ -112,13 +119,47 @@ public class TemperatureSeriesAnalysis {
         }
         if (dEquals(temArr[mid], target))
         {
-            boundaries[0] = (mid > 0)? mid-1: -1;
-            boundaries[1] = (mid < last)? mid+1: -1;
+            if (mid > 0)
+            {
+                boundaries[0] = mid - 1;
+            }
+            else
+            {
+                boundaries[0] = -1;
+            }
+
+            if (mid < last)
+            {
+                boundaries[1] = mid + 1;
+            }
+            else
+            {
+                boundaries[1] = -1;
+            }
         }
         else
         {
-            boundaries[0] = (temArr[mid] < target)? mid: -1;
-            boundaries[1] = (mid < last && temArr[mid] > target)? mid: (mid < last)? mid + 1: -1;
+            if (temArr[mid] < target)
+            {
+                boundaries[0] = mid;
+            }
+            else
+            {
+                boundaries[0] = -1;
+            }
+
+            if (mid < last && temArr[mid] > target)
+            {
+                boundaries[1] = mid;
+            }
+            else if (mid < last)
+            {
+                boundaries[1] = mid + 1;
+            }
+            else
+            {
+                boundaries[1] = -1;
+            }
         }
         return boundaries;
     }
@@ -130,8 +171,17 @@ public class TemperatureSeriesAnalysis {
                          boolean rightFrom)
     {
         int end = from.length;
-        int start = (rightFrom)? fromInd: 0;
-        int length = (rightFrom)? end-fromInd: fromInd+1;
+        int start, length;
+        if (rightFrom)
+        {
+            start = fromInd;
+            length = end-fromInd;
+        }
+        else
+        {
+            start = 0;
+            length = fromInd+1;
+        }
         System.arraycopy(from, start, to, toInd, length);
     }
 
@@ -153,7 +203,9 @@ public class TemperatureSeriesAnalysis {
     public double average()
     {
         if (isNone(avr))
+        {
             findAverage();
+        }
         return avr;
     }
 
@@ -166,34 +218,22 @@ public class TemperatureSeriesAnalysis {
     public double deviation()
     {
         if (isNone(dev))
+        {
             findDeviation();
+        }
         return dev;
-    }
-
-    private void findMin()
-    {
-        check();
-        min = temArr[0];
     }
 
     public double min()
     {
-        if (isNone(min))
-            findMin();
-        return min;
-    }
-
-    private void findMax()
-    {
         check();
-        max = temArr[size-1];
+        return temArr[0];
     }
 
     public double max()
     {
-        if (isNone(max))
-            findMax();
-        return max;
+        check();
+        return  temArr[size-1];
     }
 
     private void closestToZero()
@@ -204,7 +244,9 @@ public class TemperatureSeriesAnalysis {
     public double findTempClosestToZero()
     {
         if (isNone(zer))
+        {
             closestToZero();
+        }
         return zer;
     }
 
@@ -212,28 +254,50 @@ public class TemperatureSeriesAnalysis {
     {
         check();
         int[] bounds = binSearch(tempValue);
-
+        double result;
         if (bounds[0]+1 < temArr.length && dEquals(temArr[bounds[0]+1], tempValue))
         {
-            return temArr[bounds[0]+1];
+            result = temArr[bounds[0]+1];
         }
-
-        if (bounds[0] != -1 && bounds[1] != -1)
+        else if (bounds[0] != -1 && bounds[1] != -1)
         {
-            double dif = Math.abs(temArr[bounds[0]]-tempValue) - Math.abs(temArr[bounds[1]]-tempValue);
-            return (dif > 0 || dEquals(dif, 0))? temArr[bounds[1]]: temArr[bounds[0]];
-        }
+            double dif = Math.abs(temArr[bounds[0]]-tempValue) -
+                         Math.abs(temArr[bounds[1]]-tempValue);
 
-        return (bounds[0]!=-1)? temArr[bounds[0]]: temArr[bounds[1]];
+            if (dif > 0 || dEquals(dif, 0))
+            {
+                result = temArr[bounds[1]];
+            }
+            else
+            {
+                result = temArr[bounds[0]];
+            }
+        }
+        else
+        {
+            if (bounds[0] != -1)
+            {
+                result = temArr[bounds[0]];
+            }
+            else
+            {
+                result = temArr[bounds[1]];
+            }
+        }
+        return result;
     }
 
     public double[] findTempsLessThen(double tempValue)
     {
         if (isEmpty())
+        {
             return new double[0];
+        }
         int[] bounds = binSearch(tempValue);
         if (bounds[0] == -1)
+        {
             return new double[0];
+        }
         double[] arr = new double[bounds[0]+1];
         copyTem(temArr, bounds[0], arr, 0, false);
         return arr;
@@ -241,7 +305,9 @@ public class TemperatureSeriesAnalysis {
 
     public double[] findTempsGreaterThen(double tempValue) {
         if (isEmpty())
+        {
             return new double[0];
+        }
         int start = findTempsLessThen(tempValue).length;
         double[] arr = new double[size-start];
         copyTem(temArr, start, arr, 0, true);
@@ -263,7 +329,9 @@ public class TemperatureSeriesAnalysis {
         for (int ind = appSize; ind > 0; --ind)
         {
             if (temps[ind-1] <= limit)
+            {
                 throw new InputMismatchException();
+            }
         }
         if (cap - size < appSize)
         {
@@ -272,7 +340,7 @@ public class TemperatureSeriesAnalysis {
         copyTem(temps, 0, temArr, size, true);
         cleanData();
         size += appSize;
-        Arrays.sort(temArr,0, size);
+        Arrays.sort(temArr, 0, size);
         return size;
     }
 }
