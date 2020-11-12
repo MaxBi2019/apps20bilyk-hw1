@@ -5,9 +5,9 @@ import java.util.InputMismatchException;
 
 public class TemperatureSeriesAnalysis {
 
-    static private final double epsilon = 0.000000001;
-    static private final double limit   = -273;
-    static private final double none = Double.NaN;
+    private static final double EPSILON = 0.000000001;
+    private static final double LIMIT   = -273;
+    private static final double NONE = Double.NaN;
 
     private double[] temArr;
     private int size;
@@ -40,9 +40,9 @@ public class TemperatureSeriesAnalysis {
 
     private void cleanData()
     {
-        dev = none;
-        avr = none;
-        zer = none;
+        dev = NONE;
+        avr = NONE;
+        zer = NONE;
     }
 
     private void check()
@@ -53,10 +53,10 @@ public class TemperatureSeriesAnalysis {
         }
     }
 
-    private boolean dEquals(double dbl1,
-                            double dbl2)
+    private boolean dEquals(double first,
+                            double second)
     {
-        return Math.abs(dbl1-dbl2) < epsilon;
+        return Math.abs(first-second) < EPSILON;
     }
 
     private boolean isEmpty()
@@ -255,14 +255,15 @@ public class TemperatureSeriesAnalysis {
         check();
         int[] bounds = binSearch(tempValue);
         double result;
-        if (bounds[0]+1 < temArr.length && dEquals(temArr[bounds[0]+1], tempValue))
+        if (bounds[0]+1 < temArr.length
+            && dEquals(temArr[bounds[0]+1], tempValue))
         {
             result = temArr[bounds[0]+1];
         }
         else if (bounds[0] != -1 && bounds[1] != -1)
         {
-            double dif = Math.abs(temArr[bounds[0]]-tempValue) -
-                         Math.abs(temArr[bounds[1]]-tempValue);
+            double dif = Math.abs(temArr[bounds[0]]-tempValue)
+                         - Math.abs(temArr[bounds[1]]-tempValue);
 
             if (dif > 0 || dEquals(dif, 0))
             {
@@ -328,7 +329,7 @@ public class TemperatureSeriesAnalysis {
         int appSize = temps.length;
         for (int ind = appSize; ind > 0; --ind)
         {
-            if (temps[ind-1] <= limit)
+            if (temps[ind-1] <= LIMIT)
             {
                 throw new InputMismatchException();
             }
