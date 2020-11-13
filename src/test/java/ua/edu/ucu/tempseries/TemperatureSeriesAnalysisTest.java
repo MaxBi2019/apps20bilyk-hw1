@@ -198,10 +198,10 @@ public class TemperatureSeriesAnalysisTest
                                                                     23,
                                                                     10);
         TempSummaryStatistics actualResult = seriesAnalysis.summaryStatistics();
-        assertEquals(expResult.getAvgTemp(), actualResult.getAvgTemp(), epsilon);
-        assertEquals(expResult.getDevTemp(), actualResult.getDevTemp(), epsilon);
-        assertEquals(expResult.getMaxTemp(), actualResult.getMaxTemp(), epsilon);
-        assertEquals(expResult.getMinTemp(), actualResult.getMinTemp(), epsilon);
+        assertEquals(expResult.avgTemp, actualResult.avgTemp, epsilon);
+        assertEquals(expResult.devTemp, actualResult.devTemp, epsilon);
+        assertEquals(expResult.maxTemp, actualResult.maxTemp, epsilon);
+        assertEquals(expResult.minTemp, actualResult.minTemp, epsilon);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -224,10 +224,10 @@ public class TemperatureSeriesAnalysisTest
                 23,
                 10);
         TempSummaryStatistics actualResult1 = seriesAnalysis.summaryStatistics();
-        assertEquals(expResult1.getAvgTemp(), actualResult1.getAvgTemp(), epsilon);
-        assertEquals(expResult1.getDevTemp(), actualResult1.getDevTemp(), epsilon);
-        assertEquals(expResult1.getMaxTemp(), actualResult1.getMaxTemp(), epsilon);
-        assertEquals(expResult1.getMinTemp(), actualResult1.getMinTemp(), epsilon);
+        assertEquals(expResult1.avgTemp, actualResult1.avgTemp, epsilon);
+        assertEquals(expResult1.devTemp, actualResult1.devTemp, epsilon);
+        assertEquals(expResult1.maxTemp, actualResult1.maxTemp, epsilon);
+        assertEquals(expResult1.minTemp, actualResult1.minTemp, epsilon);
 
         int expNum = 11;
         int actualNum = seriesAnalysis.addTemps(1, 2, 100);
@@ -238,10 +238,10 @@ public class TemperatureSeriesAnalysisTest
                                                                      100,
                                                                      1);
         TempSummaryStatistics actualResult2 = seriesAnalysis.summaryStatistics();
-        assertEquals(expResult2.getAvgTemp(), actualResult2.getAvgTemp(), epsilon);
-        assertEquals(expResult2.getDevTemp(), actualResult2.getDevTemp(), epsilon);
-        assertEquals(expResult2.getMaxTemp(), actualResult2.getMaxTemp(), epsilon);
-        assertEquals(expResult2.getMinTemp(), actualResult2.getMinTemp(), epsilon);
+        assertEquals(expResult2.avgTemp, actualResult2.avgTemp, epsilon);
+        assertEquals(expResult2.devTemp, actualResult2.devTemp, epsilon);
+        assertEquals(expResult2.maxTemp, actualResult2.maxTemp, epsilon);
+        assertEquals(expResult2.minTemp, actualResult2.minTemp, epsilon);
     }
 
     @Test(expected = InputMismatchException.class)
@@ -252,6 +252,23 @@ public class TemperatureSeriesAnalysisTest
 
         // expect exception here
         seriesAnalysis.addTemps(1, 2, 100, -280);
+    }
+
+    @Test
+    public void testDefaultConstructor()
+    {
+        double[] temperatureSeries = {10, 12, 23, 23, 16, 23, 21, 16};
+        TemperatureSeriesAnalysis seriesAnalysis = new TemperatureSeriesAnalysis();
+        seriesAnalysis.addTemps(temperatureSeries);
+        TempSummaryStatistics expResult = new TempSummaryStatistics(18,
+                4.8989794855664,
+                23,
+                10);
+        TempSummaryStatistics actualResult = seriesAnalysis.summaryStatistics();
+        assertEquals(expResult.avgTemp, actualResult.avgTemp, epsilon);
+        assertEquals(expResult.devTemp, actualResult.devTemp, epsilon);
+        assertEquals(expResult.maxTemp, actualResult.maxTemp, epsilon);
+        assertEquals(expResult.minTemp, actualResult.minTemp, epsilon);
     }
 
 
